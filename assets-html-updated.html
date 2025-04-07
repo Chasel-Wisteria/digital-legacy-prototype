@@ -1,0 +1,758 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Digital Legacy Manager - Assets</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #1a1f38, #121528);
+            color: #ffffff;
+        }
+        
+        .ios-status-bar {
+            height: 44px;
+            background: linear-gradient(90deg, rgba(29, 36, 66, 0.9), rgba(35, 42, 76, 0.9));
+            backdrop-filter: blur(10px);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 16px;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .status-time {
+            font-weight: 600;
+            font-size: 15px;
+        }
+        
+        .status-icons {
+            display: flex;
+            gap: 5px;
+        }
+        
+        .assets-container {
+            padding: 20px;
+            padding-bottom: 83px;
+        }
+        
+        .page-header {
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .page-title {
+            font-size: 28px;
+            font-weight: 700;
+            color: #ffffff;
+            text-shadow: 0 2px 10px rgba(0, 123, 255, 0.3);
+            letter-spacing: 0.5px;
+            background: linear-gradient(90deg, #ffffff, #64d2ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .add-button {
+            width: 40px;
+            height: 40px;
+            border-radius: 20px;
+            background: linear-gradient(135deg, #007bff, #00c6ff);
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 22px;
+            box-shadow: 0 4px 15px rgba(0, 123, 255, 0.5);
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+        
+        .add-button::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: rgba(255, 255, 255, 0.1);
+            transform: rotate(45deg);
+            animation: shine 3s infinite;
+        }
+        
+        @keyframes shine {
+            0% {
+                transform: rotate(45deg) translateX(-100%);
+            }
+            100% {
+                transform: rotate(45deg) translateX(100%);
+            }
+        }
+        
+        .add-button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 20px rgba(0, 123, 255, 0.7);
+        }
+        
+        .search-bar {
+            background: rgba(43, 51, 90, 0.4);
+            border-radius: 12px;
+            padding: 12px 15px;
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+        }
+        
+        .search-bar:focus-within {
+            border-color: rgba(0, 198, 255, 0.5);
+            box-shadow: 0 4px 20px rgba(0, 123, 255, 0.3);
+        }
+        
+        .search-bar i {
+            color: rgba(255, 255, 255, 0.6);
+            margin-right: 10px;
+            font-size: 16px;
+        }
+        
+        .search-bar input {
+            flex: 1;
+            border: none;
+            background: transparent;
+            font-size: 16px;
+            color: #ffffff;
+            caret-color: #00c6ff;
+        }
+        
+        .search-bar input::placeholder {
+            color: rgba(255, 255, 255, 0.5);
+        }
+        
+        .search-bar input:focus {
+            outline: none;
+        }
+        
+        .category-tabs {
+            display: flex;
+            margin-bottom: 20px;
+            overflow-x: auto;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+        
+        .category-tabs::-webkit-scrollbar {
+            display: none;
+        }
+        
+        .category-tab {
+            padding: 8px 16px;
+            background: rgba(43, 51, 90, 0.4);
+            border-radius: 20px;
+            margin-right: 10px;
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.7);
+            white-space: nowrap;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(5px);
+        }
+        
+        .category-tab.active {
+            background: linear-gradient(135deg, #007bff, #00c6ff);
+            color: white;
+            box-shadow: 0 4px 12px rgba(0, 123, 255, 0.5);
+            border-color: transparent;
+        }
+        
+        .assets-list-section {
+            margin-bottom: 30px;
+        }
+        
+        .section-header {
+            margin-bottom: 15px;
+        }
+        
+        .section-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #ffffff;
+            margin-bottom: 15px;
+            text-shadow: 0 2px 8px rgba(0, 123, 255, 0.2);
+            letter-spacing: 0.5px;
+            position: relative;
+            display: inline-block;
+        }
+        
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 40px;
+            height: 2px;
+            background: linear-gradient(90deg, #00c6ff, transparent);
+        }
+        
+        .assets-list {
+            list-style: none;
+        }
+        
+        .asset-item {
+            background: rgba(30, 41, 82, 0.6);
+            border-radius: 16px;
+            padding: 15px;
+            margin-bottom: 15px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+            display: flex;
+            align-items: center;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .asset-item::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.05), transparent);
+            pointer-events: none;
+        }
+        
+        .asset-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0, 123, 255, 0.25);
+        }
+        
+        .asset-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-right: 15px;
+            flex-shrink: 0;
+        }
+        
+        .social-bg {
+            background: linear-gradient(135deg, #1877f2, #0a4bb3);
+            color: #ffffff;
+            box-shadow: 0 4px 12px rgba(24, 119, 242, 0.5);
+        }
+        
+        .finance-bg {
+            background: linear-gradient(135deg, #00d26a, #00b248);
+            color: #ffffff;
+            box-shadow: 0 4px 12px rgba(0, 210, 106, 0.5);
+        }
+        
+        .crypto-bg {
+            background: linear-gradient(135deg, #f7931a, #eb8a1a);
+            color: #ffffff;
+            box-shadow: 0 4px 12px rgba(247, 147, 26, 0.5);
+        }
+        
+        .email-bg {
+            background: linear-gradient(135deg, #af52de, #9541c7);
+            color: #ffffff;
+            box-shadow: 0 4px 12px rgba(175, 82, 222, 0.5);
+        }
+        
+        .storage-bg {
+            background: linear-gradient(135deg, #00c6ff, #0072ff);
+            color: #ffffff;
+            box-shadow: 0 4px 12px rgba(0, 198, 255, 0.5);
+        }
+        
+        .game-bg {
+            background: linear-gradient(135deg, #ff5722, #e91e63);
+            color: #ffffff;
+            box-shadow: 0 4px 12px rgba(255, 87, 34, 0.5);
+        }
+        
+        .asset-icon i {
+            font-size: 24px;
+        }
+        
+        .asset-details {
+            flex: 1;
+        }
+        
+        .asset-name {
+            font-size: 17px;
+            font-weight: 600;
+            color: #ffffff;
+            margin-bottom: 3px;
+            position: relative;
+            display: inline-block;
+        }
+        
+        .asset-name::before {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 30px;
+            height: 2px;
+            background: linear-gradient(90deg, #00c6ff, transparent);
+        }
+        
+        .asset-info {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.7);
+            letter-spacing: 0.3px;
+        }
+        
+        .asset-badges {
+            display: flex;
+            gap: 8px;
+            margin-top: 5px;
+        }
+        
+        .asset-badge {
+            font-size: 12px;
+            padding: 3px 10px;
+            border-radius: 8px;
+            background: rgba(43, 51, 90, 0.4);
+            color: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+        }
+        
+        .asset-value {
+            font-size: 16px;
+            font-weight: 600;
+            margin-left: 10px;
+            background: linear-gradient(90deg, #00d26a, #00c6ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 2px 10px rgba(0, 123, 255, 0.1);
+        }
+        
+        .asset-arrow {
+            color: rgba(255, 255, 255, 0.5);
+            margin-left: 10px;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 30px 0;
+        }
+        
+        .empty-icon {
+            width: 70px;
+            height: 70px;
+            background: rgba(43, 51, 90, 0.4);
+            border-radius: 35px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0 auto 20px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+        }
+        
+        .empty-icon i {
+            font-size: 30px;
+            color: rgba(255, 255, 255, 0.6);
+            text-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+        }
+        
+        .empty-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #ffffff;
+            margin-bottom: 10px;
+            text-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+        
+        .empty-description {
+            font-size: 15px;
+            color: rgba(255, 255, 255, 0.7);
+            margin-bottom: 20px;
+        }
+        
+        .empty-button {
+            display: inline-block;
+            padding: 10px 20px;
+            background: linear-gradient(135deg, #0071e3, #00c6ff);
+            color: white;
+            font-size: 16px;
+            font-weight: 500;
+            border-radius: 12px;
+            text-decoration: none;
+            box-shadow: 0 4px 15px rgba(0, 123, 255, 0.5);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .empty-button::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: rgba(255, 255, 255, 0.1);
+            transform: rotate(45deg);
+            z-index: 1;
+            transition: all 0.5s ease;
+        }
+        
+        .empty-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 123, 255, 0.7);
+        }
+        
+        .ios-tab-bar {
+            height: 83px;
+            background: rgba(20, 25, 52, 0.85);
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            justify-content: space-around;
+            padding-bottom: 30px;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            backdrop-filter: blur(20px);
+            z-index: 1000;
+        }
+        
+        .tab-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding-top: 8px;
+            width: 20%;
+        }
+        
+        .tab-item i {
+            font-size: 22px;
+            margin-bottom: 4px;
+            color: #8e8e93;
+        }
+        
+        .tab-item.active i {
+            color: #00c6ff;
+            text-shadow: 0 0 10px rgba(0, 198, 255, 0.7);
+        }
+        
+        .tab-label {
+            font-size: 10px;
+            color: #8e8e93;
+        }
+        
+        .tab-item.active .tab-label {
+            color: #00c6ff;
+        }
+    </style>
+</head>
+<body>
+    <!-- iOS Status Bar -->
+    <div class="ios-status-bar">
+        <div class="status-time">9:41</div>
+        <div class="status-icons">
+            <i class="fas fa-signal"></i>
+            <i class="fas fa-wifi"></i>
+            <i class="fas fa-battery-full"></i>
+        </div>
+    </div>
+    
+    <!-- Assets Content -->
+    <div class="assets-container">
+        <div class="page-header">
+            <h1 class="page-title">My Assets</h1>
+            <div class="add-button">
+                <i class="fas fa-plus"></i>
+            </div>
+        </div>
+        
+        <div class="search-bar">
+            <i class="fas fa-search"></i>
+            <input type="text" placeholder="Search assets...">
+        </div>
+        
+        <div class="category-tabs">
+            <div class="category-tab active">All</div>
+            <div class="category-tab">Social</div>
+            <div class="category-tab">Financial</div>
+            <div class="category-tab">Crypto</div>
+            <div class="category-tab">Email</div>
+            <div class="category-tab">Gaming</div>
+            <div class="category-tab">Storage</div>
+        </div>
+        
+        <div class="assets-list-section">
+            <div class="section-header">
+                <h2 class="section-title">Essential Accounts</h2>
+            </div>
+            
+            <ul class="assets-list">
+                <li class="asset-item">
+                    <div class="asset-icon social-bg">
+                        <i class="fab fa-facebook-f"></i>
+                    </div>
+                    <div class="asset-details">
+                        <div class="asset-name">Facebook</div>
+                        <div class="asset-info">michael.smith@email.com</div>
+                        <div class="asset-badges">
+                            <span class="asset-badge">Social</span>
+                            <span class="asset-badge">Photos</span>
+                        </div>
+                    </div>
+                    <div class="asset-arrow">
+                        <i class="fas fa-chevron-right"></i>
+                    </div>
+                </li>
+                
+                <li class="asset-item">
+                    <div class="asset-icon finance-bg">
+                        <i class="fas fa-university"></i>
+                    </div>
+                    <div class="asset-details">
+                        <div class="asset-name">Chase Bank</div>
+                        <div class="asset-info">****4589</div>
+                        <div class="asset-badges">
+                            <span class="asset-badge">Financial</span>
+                            <span class="asset-badge">High Priority</span>
+                        </div>
+                    </div>
+                    <div class="asset-value">$24,350</div>
+                    <div class="asset-arrow">
+                        <i class="fas fa-chevron-right"></i>
+                    </div>
+                </li>
+                
+                <li class="asset-item">
+                    <div class="asset-icon email-bg">
+                        <i class="fas fa-envelope"></i>
+                    </div>
+                    <div class="asset-details">
+                        <div class="asset-name">Gmail</div>
+                        <div class="asset-info">michael.smith@gmail.com</div>
+                        <div class="asset-badges">
+                            <span class="asset-badge">Email</span>
+                            <span class="asset-badge">Documents</span>
+                        </div>
+                    </div>
+                    <div class="asset-arrow">
+                        <i class="fas fa-chevron-right"></i>
+                    </div>
+                </li>
+            </ul>
+        </div>
+        
+        <div class="assets-list-section">
+            <div class="section-header">
+                <h2 class="section-title">Gaming Accounts</h2>
+            </div>
+            
+            <ul class="assets-list">
+                <li class="asset-item">
+                    <div class="asset-icon game-bg">
+                        <i class="fas fa-gamepad"></i>
+                    </div>
+                    <div class="asset-details">
+                        <div class="asset-name">Steam</div>
+                        <div class="asset-info">steammaster21</div>
+                        <div class="asset-badges">
+                            <span class="asset-badge">Gaming</span>
+                            <span class="asset-badge">High Value</span>
+                        </div>
+                    </div>
+                    <div class="asset-value">$3,280</div>
+                    <div class="asset-arrow">
+                        <i class="fas fa-chevron-right"></i>
+                    </div>
+                </li>
+                
+                <li class="asset-item">
+                    <div class="asset-icon game-bg">
+                        <i class="fas fa-chess-knight"></i>
+                    </div>
+                    <div class="asset-details">
+                        <div class="asset-name">Blizzard</div>
+                        <div class="asset-info">michael.smith@gmail.com</div>
+                        <div class="asset-badges">
+                            <span class="asset-badge">Gaming</span>
+                            <span class="asset-badge">Collectibles</span>
+                        </div>
+                    </div>
+                    <div class="asset-value">$1,850</div>
+                    <div class="asset-arrow">
+                        <i class="fas fa-chevron-right"></i>
+                    </div>
+                </li>
+                
+                <li class="asset-item">
+                    <div class="asset-icon game-bg">
+                        <i class="fas fa-robot"></i>
+                    </div>
+                    <div class="asset-details">
+                        <div class="asset-name">Axie Infinity</div>
+                        <div class="asset-info">axie_master</div>
+                        <div class="asset-badges">
+                            <span class="asset-badge">Gaming</span>
+                            <span class="asset-badge">NFT</span>
+                            <span class="asset-badge">Play-to-Earn</span>
+                        </div>
+                    </div>
+                    <div class="asset-value">$4,620</div>
+                    <div class="asset-arrow">
+                        <i class="fas fa-chevron-right"></i>
+                    </div>
+                </li>
+            </ul>
+        </div>
+        
+        <div class="assets-list-section">
+            <div class="section-header">
+                <h2 class="section-title">Digital Wallets</h2>
+            </div>
+            
+            <ul class="assets-list">
+                <li class="asset-item">
+                    <div class="asset-icon crypto-bg">
+                        <i class="fab fa-bitcoin"></i>
+                    </div>
+                    <div class="asset-details">
+                        <div class="asset-name">Bitcoin Wallet</div>
+                        <div class="asset-info">bc1q...7j4v</div>
+                        <div class="asset-badges">
+                            <span class="asset-badge">Crypto</span>
+                            <span class="asset-badge">High Value</span>
+                        </div>
+                    </div>
+                    <div class="asset-value">2.34 BTC</div>
+                    <div class="asset-arrow">
+                        <i class="fas fa-chevron-right"></i>
+                    </div>
+                </li>
+                
+                <li class="asset-item">
+                    <div class="asset-icon crypto-bg">
+                        <i class="fab fa-ethereum"></i>
+                    </div>
+                    <div class="asset-details">
+                        <div class="asset-name">Ethereum Wallet</div>
+                        <div class="asset-info">0x71...3a8b</div>
+                        <div class="asset-badges">
+                            <span class="asset-badge">Crypto</span>
+                        </div>
+                    </div>
+                    <div class="asset-value">18.5 ETH</div>
+                    <div class="asset-arrow">
+                        <i class="fas fa-chevron-right"></i>
+                    </div>
+                </li>
+            </ul>
+        </div>
+        
+        <div class="assets-list-section">
+            <div class="section-header">
+                <h2 class="section-title">Cloud Storage</h2>
+            </div>
+            
+            <ul class="assets-list">
+                <li class="asset-item">
+                    <div class="asset-icon storage-bg">
+                        <i class="fab fa-google-drive"></i>
+                    </div>
+                    <div class="asset-details">
+                        <div class="asset-name">Google Drive</div>
+                        <div class="asset-info">michael.smith@gmail.com</div>
+                        <div class="asset-badges">
+                            <span class="asset-badge">Storage</span>
+                            <span class="asset-badge">Documents</span>
+                        </div>
+                    </div>
+                    <div class="asset-arrow">
+                        <i class="fas fa-chevron-right"></i>
+                    </div>
+                </li>
+                
+                <li class="asset-item">
+                    <div class="asset-icon storage-bg">
+                        <i class="fab fa-dropbox"></i>
+                    </div>
+                    <div class="asset-details">
+                        <div class="asset-name">Dropbox</div>
+                        <div class="asset-info">michael.smith@email.com</div>
+                        <div class="asset-badges">
+                            <span class="asset-badge">Storage</span>
+                            <span class="asset-badge">Photos</span>
+                        </div>
+                    </div>
+                    <div class="asset-arrow">
+                        <i class="fas fa-chevron-right"></i>
+                    </div>
+                </li>
+            </ul>
+        </div>
+        
+        <div class="assets-list-section">
+            <div class="section-header">
+                <h2 class="section-title">Suggested Accounts</h2>
+            </div>
+            
+            <div class="empty-state">
+                <div class="empty-icon">
+                    <i class="fas fa-plus"></i>
+                </div>
+                <h3 class="empty-title">Add More Assets</h3>
+                <p class="empty-description">We've detected other accounts you might want to add to your legacy plan.</p>
+                <a href="#" class="empty-button">View Suggestions</a>
+            </div>
+        </div>
+    </div>
+    
+    <!-- iOS Tab Bar -->
+    <div class="ios-tab-bar">
+        <div class="tab-item">
+            <i class="fas fa-home"></i>
+            <span class="tab-label">Home</span>
+        </div>
+        <div class="tab-item active">
+            <i class="fas fa-folder"></i>
+            <span class="tab-label">Assets</span>
+        </div>
+        <div class="tab-item">
+            <i class="fas fa-file-alt"></i>
+            <span class="tab-label">Will</span>
+        </div>
+        <div class="tab-item">
+            <i class="fas fa-users"></i>
+            <span class="tab-label">Beneficiaries</span>
+        </div>
+        <div class="tab-item">
+            <i class="fas fa-cog"></i>
+            <span class="tab-label">Settings</span>
+        </div>
+    </div>
+</body>
+</html>

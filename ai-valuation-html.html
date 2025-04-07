@@ -1,0 +1,856 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Digital Legacy Manager - AI Valuation</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #1a1f38, #121528);
+            color: #ffffff;
+        }
+        
+        .ios-status-bar {
+            height: 44px;
+            background: linear-gradient(90deg, rgba(29, 36, 66, 0.9), rgba(35, 42, 76, 0.9));
+            backdrop-filter: blur(10px);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 16px;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .status-time {
+            font-weight: 600;
+            font-size: 15px;
+        }
+        
+        .status-icons {
+            display: flex;
+            gap: 5px;
+        }
+        
+        .valuation-container {
+            padding: 20px;
+            padding-bottom: 83px;
+        }
+        
+        .page-header {
+            margin-bottom: 20px;
+        }
+        
+        .page-title {
+            font-size: 28px;
+            font-weight: 700;
+            color: #ffffff;
+            margin-bottom: 5px;
+            text-shadow: 0 2px 10px rgba(0, 123, 255, 0.3);
+            letter-spacing: 0.5px;
+            background: linear-gradient(90deg, #ffffff, #64d2ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .page-subtitle {
+            font-size: 15px;
+            color: rgba(255, 255, 255, 0.7);
+            letter-spacing: 0.3px;
+        }
+        
+        .section-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #ffffff;
+            margin-bottom: 15px;
+            text-shadow: 0 2px 8px rgba(0, 123, 255, 0.2);
+            letter-spacing: 0.5px;
+            position: relative;
+            display: inline-block;
+        }
+        
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 40px;
+            height: 2px;
+            background: linear-gradient(90deg, #00c6ff, transparent);
+        }
+        
+        .valuation-summary {
+            background: rgba(30, 41, 82, 0.6);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .valuation-summary::before {
+            content: '';
+            position: absolute;
+            width: 150px;
+            height: 150px;
+            background: radial-gradient(circle, rgba(175, 82, 222, 0.2), transparent 70%);
+            top: -75px;
+            right: -75px;
+            border-radius: 50%;
+            z-index: -1;
+        }
+        
+        .total-value {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        .value-label {
+            font-size: 16px;
+            color: rgba(255, 255, 255, 0.7);
+            margin-bottom: 5px;
+        }
+        
+        .value-amount {
+            font-size: 36px;
+            font-weight: 700;
+            color: #ffffff;
+            text-shadow: 0 2px 10px rgba(0, 123, 255, 0.3);
+            background: linear-gradient(90deg, #ffffff, #af52de);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .value-growth {
+            display: inline-block;
+            padding: 4px 10px;
+            background: rgba(46, 204, 113, 0.2);
+            color: #2ecc71;
+            border-radius: 8px;
+            font-size: 14px;
+            margin-top: 5px;
+        }
+        
+        .value-growth i {
+            margin-right: 5px;
+        }
+        
+        .portfolio-breakdown {
+            background: rgba(43, 51, 90, 0.4);
+            border-radius: 12px;
+            padding: 15px;
+        }
+        
+        .category-bars {
+            display: flex;
+            height: 30px;
+            border-radius: 8px;
+            overflow: hidden;
+            margin-bottom: 15px;
+        }
+        
+        .category-bar {
+            height: 100%;
+            position: relative;
+        }
+        
+        .crypto-bar {
+            background: linear-gradient(90deg, #f7931a, #ff7600);
+            width: 45%;
+        }
+        
+        .nft-bar {
+            background: linear-gradient(90deg, #af52de, #9541c7);
+            width: 30%;
+        }
+        
+        .domain-bar {
+            background: linear-gradient(90deg, #00c6ff, #0072ff);
+            width: 15%;
+        }
+        
+        .other-bar {
+            background: linear-gradient(90deg, #2ecc71, #1abc9c);
+            width: 10%;
+        }
+        
+        .category-legends {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+        }
+        
+        .category-legend {
+            display: flex;
+            align-items: center;
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.8);
+        }
+        
+        .legend-color {
+            width: 12px;
+            height: 12px;
+            border-radius: 3px;
+            margin-right: 8px;
+        }
+        
+        .legend-crypto {
+            background: linear-gradient(90deg, #f7931a, #ff7600);
+        }
+        
+        .legend-nft {
+            background: linear-gradient(90deg, #af52de, #9541c7);
+        }
+        
+        .legend-domain {
+            background: linear-gradient(90deg, #00c6ff, #0072ff);
+        }
+        
+        .legend-other {
+            background: linear-gradient(90deg, #2ecc71, #1abc9c);
+        }
+        
+        .legend-percentage {
+            margin-left: auto;
+            font-weight: 600;
+        }
+        
+        .insight-card {
+            background: rgba(30, 41, 82, 0.6);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 15px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .insight-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0, 123, 255, 0.25);
+        }
+        
+        .insight-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .insight-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-right: 15px;
+            flex-shrink: 0;
+        }
+        
+        .insight-ai-bg {
+            background: linear-gradient(135deg, #af52de, #9541c7);
+            color: #ffffff;
+            box-shadow: 0 4px 12px rgba(175, 82, 222, 0.5);
+        }
+        
+        .insight-trend-bg {
+            background: linear-gradient(135deg, #00c6ff, #0072ff);
+            color: #ffffff;
+            box-shadow: 0 4px 12px rgba(0, 198, 255, 0.5);
+        }
+        
+        .insight-risk-bg {
+            background: linear-gradient(135deg, #ff9500, #ff7600);
+            color: #ffffff;
+            box-shadow: 0 4px 12px rgba(255, 149, 0, 0.5);
+        }
+        
+        .insight-icon i {
+            font-size: 20px;
+        }
+        
+        .insight-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #ffffff;
+            text-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+        }
+        
+        .insight-description {
+            font-size: 15px;
+            color: rgba(255, 255, 255, 0.7);
+            line-height: 1.4;
+            margin-bottom: 15px;
+        }
+        
+        .insight-detail {
+            background: rgba(43, 51, 90, 0.4);
+            border-radius: 12px;
+            padding: 12px 15px;
+            margin-bottom: 15px;
+        }
+        
+        .detail-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 8px;
+        }
+        
+        .item-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .value-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.05);
+            transition: all 0.3s ease;
+        }
+        
+        .value-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+        
+        .item-name {
+            display: flex;
+            align-items: center;
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.8);
+        }
+        
+        .item-icon {
+            width: 24px;
+            height: 24px;
+            border-radius: 6px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-right: 10px;
+            font-size: 12px;
+        }
+        
+        .item-price {
+            font-size: 14px;
+            font-weight: 600;
+            color: #ffffff;
+        }
+        
+        .item-change {
+            font-size: 12px;
+            margin-left: 8px;
+        }
+        
+        .change-positive {
+            color: #2ecc71;
+        }
+        
+        .change-negative {
+            color: #e74c3c;
+        }
+        
+        .crypto-bg {
+            background: linear-gradient(135deg, #f7931a, #eb8a1a);
+            color: #ffffff;
+        }
+        
+        .nft-bg {
+            background: linear-gradient(135deg, #af52de, #9541c7);
+            color: #ffffff;
+        }
+        
+        .domain-bg {
+            background: linear-gradient(135deg, #00c6ff, #0072ff);
+            color: #ffffff;
+        }
+        
+        .asset-card {
+            background: rgba(30, 41, 82, 0.6);
+            border-radius: 16px;
+            margin-bottom: 15px;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+        }
+        
+        .asset-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0, 123, 255, 0.25);
+        }
+        
+        .asset-header {
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            background: rgba(35, 45, 90, 0.4);
+        }
+        
+        .asset-name {
+            font-size: 17px;
+            font-weight: 600;
+            color: #ffffff;
+            text-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+            display: flex;
+            align-items: center;
+        }
+        
+        .asset-name i {
+            margin-right: 10px;
+            font-size: 18px;
+        }
+        
+        .asset-value {
+            font-size: 16px;
+            font-weight: 600;
+            color: #ffffff;
+            text-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+        }
+        
+        .asset-content {
+            padding: 15px 20px;
+        }
+        
+        .asset-info {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+        }
+        
+        .info-item {
+            flex: 1;
+        }
+        
+        .info-label {
+            font-size: 13px;
+            color: rgba(255, 255, 255, 0.6);
+            margin-bottom: 5px;
+        }
+        
+        .info-value {
+            font-size: 15px;
+            color: #ffffff;
+        }
+        
+        .asset-chart {
+            height: 100px;
+            background: linear-gradient(180deg, rgba(0, 198, 255, 0.1), transparent);
+            border-radius: 8px;
+            position: relative;
+            margin-bottom: 15px;
+            overflow: hidden;
+        }
+        
+        .chart-line {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 300 100' preserveAspectRatio='none'%3E%3Cpath d='M0,50 C50,30 80,80 120,60 C160,40 200,70 250,30 L250,100 L0,100 Z' fill='rgba(0, 198, 255, 0.2)'/%3E%3Cpath d='M0,50 C50,30 80,80 120,60 C160,40 200,70 250,30' fill='none' stroke='%2300c6ff' stroke-width='2'/%3E%3C/svg%3E");
+            background-size: 100% 100%;
+            background-repeat: no-repeat;
+        }
+        
+        .refresh-button {
+            display: block;
+            width: 100%;
+            padding: 14px 0;
+            background: linear-gradient(135deg, #0071e3, #00c6ff);
+            color: white;
+            font-size: 16px;
+            font-weight: 500;
+            text-align: center;
+            border-radius: 12px;
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0, 123, 255, 0.5);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            margin-top: 20px;
+        }
+        
+        .refresh-button::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: rgba(255, 255, 255, 0.1);
+            transform: rotate(45deg);
+            z-index: 1;
+            transition: all 0.5s ease;
+        }
+        
+        .refresh-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 123, 255, 0.7);
+        }
+        
+        .refresh-button:hover::before {
+            animation: shine 1.5s;
+        }
+        
+        @keyframes shine {
+            0% {
+                transform: rotate(45deg) translateX(-100%);
+            }
+            100% {
+                transform: rotate(45deg) translateX(100%);
+            }
+        }
+        
+        .ios-tab-bar {
+            height: 83px;
+            background: rgba(20, 25, 52, 0.85);
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            justify-content: space-around;
+            padding-bottom: 30px;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            backdrop-filter: blur(20px);
+            z-index: 1000;
+        }
+        
+        .tab-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding-top: 8px;
+            width: 20%;
+        }
+        
+        .tab-item i {
+            font-size: 22px;
+            margin-bottom: 4px;
+            color: #8e8e93;
+        }
+        
+        .tab-item.active i {
+            color: #00c6ff;
+            text-shadow: 0 0 10px rgba(0, 198, 255, 0.7);
+        }
+        
+        .tab-label {
+            font-size: 10px;
+            color: #8e8e93;
+        }
+        
+        .tab-item.active .tab-label {
+            color: #00c6ff;
+        }
+    </style>
+</head>
+<body>
+    <!-- iOS Status Bar -->
+    <div class="ios-status-bar">
+        <div class="status-time">9:41</div>
+        <div class="status-icons">
+            <i class="fas fa-signal"></i>
+            <i class="fas fa-wifi"></i>
+            <i class="fas fa-battery-full"></i>
+        </div>
+    </div>
+    
+    <!-- AI Valuation Content -->
+    <div class="valuation-container">
+        <div class="page-header">
+            <h1 class="page-title">AI Valuation</h1>
+            <p class="page-subtitle">Advanced analytics of your digital assets</p>
+        </div>
+        
+        <div class="valuation-summary">
+            <div class="total-value">
+                <div class="value-label">Total Portfolio Value</div>
+                <div class="value-amount">$75,420</div>
+                <div class="value-growth"><i class="fas fa-arrow-up"></i> 12.4% in 30 days</div>
+            </div>
+            
+            <div class="portfolio-breakdown">
+                <div class="category-bars">
+                    <div class="category-bar crypto-bar"></div>
+                    <div class="category-bar nft-bar"></div>
+                    <div class="category-bar domain-bar"></div>
+                    <div class="category-bar other-bar"></div>
+                </div>
+                
+                <div class="category-legends">
+                    <div class="category-legend">
+                        <div class="legend-color legend-crypto"></div>
+                        <span>Cryptocurrencies</span>
+                        <span class="legend-percentage">45%</span>
+                    </div>
+                    <div class="category-legend">
+                        <div class="legend-color legend-nft"></div>
+                        <span>NFT Collections</span>
+                        <span class="legend-percentage">30%</span>
+                    </div>
+                    <div class="category-legend">
+                        <div class="legend-color legend-domain"></div>
+                        <span>Domain Names</span>
+                        <span class="legend-percentage">15%</span>
+                    </div>
+                    <div class="category-legend">
+                        <div class="legend-color legend-other"></div>
+                        <span>Other Assets</span>
+                        <span class="legend-percentage">10%</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <h2 class="section-title">AI Insights</h2>
+        
+        <div class="insight-card">
+            <div class="insight-header">
+                <div class="insight-icon insight-ai-bg">
+                    <i class="fas fa-robot"></i>
+                </div>
+                <h3 class="insight-title">Value Growth Projection</h3>
+            </div>
+            
+            <p class="insight-description">Based on historical trends and market analysis, AI predicts significant growth potential for these assets in your portfolio:</p>
+            
+            <div class="insight-detail">
+                <div class="detail-title">Top Growth Opportunities</div>
+                <div class="item-list">
+                    <div class="value-item">
+                        <div class="item-name">
+                            <div class="item-icon crypto-bg">
+                                <i class="fab fa-ethereum"></i>
+                            </div>
+                            Ethereum Wallet
+                        </div>
+                        <div class="item-price">
+                            $33,825 <span class="item-change change-positive">+18.5%</span>
+                        </div>
+                    </div>
+                    <div class="value-item">
+                        <div class="item-name">
+                            <div class="item-icon nft-bg">
+                                <i class="fas fa-palette"></i>
+                            </div>
+                            Bored Ape #7291
+                        </div>
+                        <div class="item-price">
+                            $11,250 <span class="item-change change-positive">+5.2%</span>
+                        </div>
+                    </div>
+                    <div class="value-item">
+                        <div class="item-name">
+                            <div class="item-icon domain-bg">
+                                <i class="fas fa-globe"></i>
+                            </div>
+                            cryptoventures.com
+                        </div>
+                        <div class="item-price">
+                            $8,500 <span class="item-change change-positive">+12.6%</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="insight-card">
+            <div class="insight-header">
+                <div class="insight-icon insight-trend-bg">
+                    <i class="fas fa-chart-line"></i>
+                </div>
+                <h3 class="insight-title">Market Trend Analysis</h3>
+            </div>
+            
+            <p class="insight-description">Our AI has detected the following market trends that may impact your digital asset portfolio:</p>
+            
+            <div class="insight-detail">
+                <div class="detail-title">Current Trends</div>
+                <div class="item-list">
+                    <div class="value-item">
+                        <div class="item-name">
+                            <div class="item-icon crypto-bg">
+                                <i class="fas fa-coins"></i>
+                            </div>
+                            Layer 2 Solutions
+                        </div>
+                        <div class="item-price">
+                            High Impact <span class="item-change change-positive"><i class="fas fa-arrow-up"></i></span>
+                        </div>
+                    </div>
+                    <div class="value-item">
+                        <div class="item-name">
+                            <div class="item-icon nft-bg">
+                                <i class="fas fa-image"></i>
+                            </div>
+                            Utility NFTs
+                        </div>
+                        <div class="item-price">
+                            Medium Impact <span class="item-change change-positive"><i class="fas fa-arrow-up"></i></span>
+                        </div>
+                    </div>
+                    <div class="value-item">
+                        <div class="item-name">
+                            <div class="item-icon domain-bg">
+                                <i class="fas fa-server"></i>
+                            </div>
+                            Web3 Domains
+                        </div>
+                        <div class="item-price">
+                            High Impact <span class="item-change change-positive"><i class="fas fa-arrow-up"></i></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="insight-card">
+            <div class="insight-header">
+                <div class="insight-icon insight-risk-bg">
+                    <i class="fas fa-exclamation-triangle"></i>
+                </div>
+                <h3 class="insight-title">Risk Assessment</h3>
+            </div>
+            
+            <p class="insight-description">AI-powered analysis identified these potential risks in your digital asset portfolio:</p>
+            
+            <div class="insight-detail">
+                <div class="detail-title">Risk Alerts</div>
+                <div class="item-list">
+                    <div class="value-item">
+                        <div class="item-name">
+                            <div class="item-icon crypto-bg">
+                                <i class="fas fa-exclamation"></i>
+                            </div>
+                            DeFi Platform Exposure
+                        </div>
+                        <div class="item-price">
+                            $5,280 <span class="item-change change-negative">High Risk</span>
+                        </div>
+                    </div>
+                    <div class="value-item">
+                        <div class="item-name">
+                            <div class="item-icon nft-bg">
+                                <i class="fas fa-exclamation"></i>
+                            </div>
+                            Low Liquidity NFTs
+                        </div>
+                        <div class="item-price">
+                            $3,750 <span class="item-change change-negative">Medium Risk</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <h2 class="section-title">Top Assets</h2>
+        
+        <div class="asset-card">
+            <div class="asset-header">
+                <div class="asset-name">
+                    <i class="fab fa-ethereum"></i>
+                    Ethereum Portfolio
+                </div>
+                <div class="asset-value">$33,825</div>
+            </div>
+            
+            <div class="asset-content">
+                <div class="asset-info">
+                    <div class="info-item">
+                        <div class="info-label">30-Day Change</div>
+                        <div class="info-value">+18.5%</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Confidence</div>
+                        <div class="info-value">High (92%)</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Last Updated</div>
+                        <div class="info-value">Just now</div>
+                    </div>
+                </div>
+                
+                <div class="asset-chart">
+                    <div class="chart-line"></div>
+                </div>
+                
+                <div class="asset-info">
+                    <div class="info-item">
+                        <div class="info-label">AI Projection</div>
+                        <div class="info-value">$38,500 (+14%) in 3 months</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="asset-card">
+            <div class="asset-header">
+                <div class="asset-name">
+                    <i class="fas fa-palette"></i>
+                    NFT Collection
+                </div>
+                <div class="asset-value">$22,650</div>
+            </div>
+            
+            <div class="asset-content">
+                <div class="asset-info">
+                    <div class="info-item">
+                        <div class="info-label">30-Day Change</div>
+                        <div class="info-value">+5.2%</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Confidence</div>
+                        <div class="info-value">Medium (78%)</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Last Updated</div>
+                        <div class="info-value">2 hours ago</div>
+                    </div>
+                </div>
+                
+                <div class="asset-chart">
+                    <div class="chart-line"></div>
+                </div>
+                
+                <div class="asset-info">
+                    <div class="info-item">
+                        <div class="info-label">AI Projection</div>
+                        <div class="info-value">$24,100 (+6.4%) in 3 months</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <button class="refresh-button">
+            <i class="fas fa-sync-alt"></i> Refresh Valuation
+        </button>
+    </div>
+    
